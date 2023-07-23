@@ -8,6 +8,7 @@ import Image from "next/image";
 import nextArrowIcon from "@/assets/next-arrow.svg";
 import checkFilledIcon from "@/assets/check-filled.svg";
 import { useRouter } from "next/router";
+import LoadingMask from "@/components/Loading";
 
 const ContentWrapper = styled.div`
   width: calc(100% - 40px);
@@ -83,7 +84,7 @@ const NextButton = styled.button`
   border-radius: 80px;
   background: #ff3b3f;
   max-width: inherit;
-  width: 100%;
+  width: calc(100% - 40px);
   color: #fff;
   font-family: "Nunito", sans-serif;
   font-size: 32px;
@@ -92,6 +93,7 @@ const NextButton = styled.button`
   line-height: 67px;
   border: none;
   padding: 0 20px;
+  margin: 0 20px;
   cursor: pointer;
   display: grid;
   grid-template-columns: 1fr 48px;
@@ -117,6 +119,7 @@ const QuizPage = () => {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [selectedOption, setSelectedOption] = useState<number>();
+  const [isLoading, setIsLoading] = useState(true);
 
   const isLastQuestion = currentQuestion === questions.length - 1;
 
@@ -129,7 +132,7 @@ const QuizPage = () => {
 
   const submitAnswers = async (submittedAnswers: Answer[]) => {
     try {
-      console.log(submittedAnswers);
+      setIsLoading(true);
       const quizData = {
         submittedAnswers,
       };
@@ -145,7 +148,9 @@ const QuizPage = () => {
           redirect: "quiz",
         },
       });
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       console.log(err);
     }
   };
@@ -183,45 +188,53 @@ const QuizPage = () => {
         pathname: "/",
       });
     }
+    setIsLoading(false);
     getQuestions();
   }, [redirect, router]);
 
   return (
-    <Layout title="Quiz" description="Quiz page" type={"Question"}>
-      <ContentWrapper>
-        <ChartWrapper>
-          <Chart total={questions?.length} completed={currentQuestion} />
-        </ChartWrapper>
-        <QuestionWrapper key={question?.id}>
-          {question?.questionText}
-        </QuestionWrapper>
-        <OptionsWrapper>
-          {question?.options?.map((option, index) => (
-            <OptionButton
-              key={option.id}
-              onClick={() => handleOptionClick(option.id)}
-              selected={option.id === selectedOption}
-            >
-              {option.id === selectedOption ? (
-                <Image
-                  src={checkFilledIcon}
-                  width={24}
-                  height={24}
-                  alt="check-filled"
-                />
-              ) : (
-                <Circle selected={option.id === selectedOption}></Circle>
-              )}
-              {option.optionText}
-            </OptionButton>
-          ))}
-        </OptionsWrapper>
-        <NextButton onClick={() => handleNextClick()}>
-          {isLastQuestion ? "Submit" : "Next"}
-          <Image src={nextArrowIcon} width={24} height={24} alt="next-arrow" />
-        </NextButton>
-      </ContentWrapper>
-    </Layout>
+    <LoadingMask isLoading={isLoading}>
+      <Layout title="Quiz" description="Quiz page" type={"Question"}>
+        <ContentWrapper>
+          <ChartWrapper>
+            <Chart total={questions?.length} completed={currentQuestion} />
+          </ChartWrapper>
+          <QuestionWrapper key={question?.id}>
+            {question?.questionText}
+          </QuestionWrapper>
+          <OptionsWrapper>
+            {question?.options?.map((option, index) => (
+              <OptionButton
+                key={option.id}
+                onClick={() => handleOptionClick(option.id)}
+                selected={option.id === selectedOption}
+              >
+                {option.id === selectedOption ? (
+                  <Image
+                    src={checkFilledIcon}
+                    width={24}
+                    height={24}
+                    alt="check-filled"
+                  />
+                ) : (
+                  <Circle selected={option.id === selectedOption}></Circle>
+                )}
+                {option.optionText}
+              </OptionButton>
+            ))}
+          </OptionsWrapper>
+          <NextButton onClick={() => handleNextClick()}>
+            {isLastQuestion ? "Submit" : "Next"}
+            <Image
+              src={nextArrowIcon}
+              width={24}
+              height={24}
+              alt="next-arrow"
+            />
+          </NextButton>
+        </ContentWrapper>
+      </Layout>
+    </LoadingMask>
   );
 };
 

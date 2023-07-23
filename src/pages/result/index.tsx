@@ -2,8 +2,9 @@ import DonutChart from "@/components/ResultChart";
 import Layout from "@/components/Layout";
 
 import { styled } from "styled-components";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import LoadingMask from "@/components/Loading";
 
 const ResultWrapper = styled.div`
   display: flex;
@@ -83,36 +84,41 @@ const ResultPage: React.FC = () => {
   const { correctAnswers, wrongAnswers, totalQuestions, redirect } =
     router.query;
 
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (redirect !== "quiz") {
       router.push("/");
     }
+    setIsLoading(false);
   }, [router, redirect]);
   const handleStartAgain = () => {
+    setIsLoading(true);
     router.push({
       pathname: "/quiz",
       query: { redirect: "result" },
     });
   };
   return (
-    <Layout title="Result" description="Result" type="Question">
-      <ResultWrapper>
-        <TitleWrapper>Your Result</TitleWrapper>
-        <DonutChart
-          total={Number(totalQuestions)}
-          score={Number(correctAnswers)}
-        />
-        <ContentWrapper type="success">
-          <Circle type="success" />
-          {`${correctAnswers} Correct`}
-        </ContentWrapper>
-        <ContentWrapper>
-          <Circle type="fail" />
-          {`${wrongAnswers} Incorrect`}
-        </ContentWrapper>
-        <StartAgain onClick={handleStartAgain}>Start Again</StartAgain>
-      </ResultWrapper>
-    </Layout>
+    <LoadingMask isLoading={isLoading}>
+      <Layout title="Result" description="Result" type="Question">
+        <ResultWrapper>
+          <TitleWrapper>Your Result</TitleWrapper>
+          <DonutChart
+            total={Number(totalQuestions)}
+            score={Number(correctAnswers)}
+          />
+          <ContentWrapper type="success">
+            <Circle type="success" />
+            {`${correctAnswers} Correct`}
+          </ContentWrapper>
+          <ContentWrapper>
+            <Circle type="fail" />
+            {`${wrongAnswers} Incorrect`}
+          </ContentWrapper>
+          <StartAgain onClick={handleStartAgain}>Start Again</StartAgain>
+        </ResultWrapper>
+      </Layout>
+    </LoadingMask>
   );
 };
 
