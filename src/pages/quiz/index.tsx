@@ -17,13 +17,14 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  margin-top: 40px;
 `;
 const ChartWrapper = styled.div`
   width: 120px;
   height: 120px;
   flex-shrink: 0;
-  position: relative;
-  top: -70px;
+  position: absolute;
+  top: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
